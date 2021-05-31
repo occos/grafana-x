@@ -1,0 +1,44 @@
+{
+	"description": "grafana ext", //这里写一些注释或说明
+	"manifest_version": 2, // 清单版本号，建议使用 版本 2，版本 1 是旧的，已弃用，不建议使用
+	"name": "grafanaX", // 插件名称
+	"version": "0.26.0", // 插件版本
+	//browser_action和page_action只能添加一个
+	"browser_action": { //浏览器级别行为，所有页面均生效
+		"default_icon": "icon.png", //图标的图片
+		"default_popup": "popup.html", //单击图标后弹窗页面
+		"default_title": "Grafana语音报警插件" //鼠标移到图标显示的文字 
+	},
+	// 数组，声明插件所需要的权限，这里就是很危险的存在了，想干坏事的你是不是很激动！
+	"permissions": [
+		"notifications", //通知
+		"tabs", //标签
+		"webRequest",  // web请求
+		"http://*/*",  // 可以通过executeScript或者insertCSS访问的网站
+		"https://*/*", // 可以通过executeScript或者insertCSS访问的网站
+		"background"   // 背景
+	],
+	//会一直常驻后台的js或页面
+	"background": {
+		"page": "background.html"
+	},
+	// 定义对页面内容进行操作的脚本
+	"content_scripts": [{
+		"matches": [
+			"http://grafana.iquanwai.work/*" // 只在这些站点下 content_scripts会运行
+		],
+		// 调用的js文件位置
+		"js": [
+			"jquery-3.3.1.min.js",
+			"content-script.js"
+		],
+		// 代码注入的时间，可选值： "document_start", "document_end", or "document_idle"，最后一个表示页面空闲时，默认document_idle
+		"run_at": "document_end"
+	}],
+	"externally_connectable": {
+		"matches": [
+			"http://grafana.iquanwai.work/*"
+		],
+		"accepts_tls_channel_id": false
+	}
+}
