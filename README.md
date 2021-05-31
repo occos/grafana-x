@@ -5,7 +5,8 @@
 
 ### 插件作用
 
-这是一个Chrome插件，用来对接Grafana，完成特定图表的语音报警提醒
+- 这是一个Chrome插件用来对接Grafana，完成特定图表的语音报警提醒；
+- master分支只兼容grafana7.x版，grafana6.x版本的兼容插件参见当前仓库的grafana-6.x分支
 
 <hr/>
 
