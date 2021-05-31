@@ -23,8 +23,6 @@
 
 	//声明插件所需要的权限
 	"permissions": [
-		// 后台
-		"background",
 		//通知
 		"notifications",
 		//标签
@@ -34,10 +32,12 @@
 		// 可以通过executeScript或者insertCSS访问的网站
 		"http://*/*",
 		// 可以通过executeScript或者insertCSS访问的网站
-		"https://*/*"
+		"https://*/*",
+		// 背景
+		"background"
 	],
 
-	//会一直常驻后台的页面
+	//会一直常驻后台的js或页面
 	"background": {
 		"page": "background.html"
 	},
@@ -46,6 +46,7 @@
 	"content_scripts": [{
 		"matches": [
 			"http://grafana.iquanwai.work/*" // 只在这些站点下 content_scripts会运行
+			// "http://172.20.5.11/*" // 只在这些站点下 content_scripts会运行
 			// "<all_urls>"
 		],
 		// 调用的js文件位置
@@ -61,6 +62,7 @@
 	"externally_connectable": {
 		"matches": [
 			"http://grafana.iquanwai.work/*"
+			// "http://172.20.5.11/*",
 			// "<all_urls>"
 		],
 		"accepts_tls_channel_id": false
