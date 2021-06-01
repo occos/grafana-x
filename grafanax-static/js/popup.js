@@ -1,42 +1,39 @@
-let panelList = {};
-let contentStatus = {};
-let backgroundStatus = {};
-let dashboardId = 0;
-let dashboardUrl = '';
+let panelList = {}; //面板集合，字典类型
+let contentStatus = {}; //内容状态，字典类型
+let backgroundStatus = {}; //后台状态，字典类型
+let dashboardId = 0; //仪表盘ID
+let dashboardUrl = ''; //仪表盘URL
 
+// 找到页面上的按钮
 let $message_btn = $('#message_btn');
 let $init_btn = $('#init_btn');
 let $restart_btn = $('#restart_btn');
 let $start_btn = $('#start_btn');
 
 // 获取内容状态完成的变量
-let _getContentStatusFinish = false;
-let _getBackgroundStatusFinish = false;
-let _waitCount = 0;
+let _getContentStatusFinish = false; //该变量表示获取内容状态后的结果，初始值为false，获取完成后状态会被修改
+let _getBackgroundStatusFinish = false; //该变量表示获取后台状态后的结果，初始值为false，获取完成后状态会被修改
+let _waitCount = 0; //等待次数
 
 
-// 通信
-chrome.tabs.query({
-	active: true,
-	currentWindow: true
-}, function(tabs) {
+// 通信：扩展程序--->内容脚本
+chrome.tabs.query({active: true,currentWindow: true}, function(tabs) {
 	let reg = /^http:\/\/grafana.iquanwai.work\/d\/.*/;
 
 	// if (reg.test(tabs[0].url)) {
 	if (true) {
-		dashboardId = tabs[0].id; //106
-		dashboardUrl = tabs[0].url; //"http://grafana.iquanwai.work/d/4y_eIZeMz/testmian-ban?orgId=1"
+		dashboardId = tabs[0].id; //获取标签页ID：106
+		dashboardUrl = tabs[0].url; //获取标签页RUL："http://grafana.iquanwai.work/d/4y_eIZeMz/testmian-ban?orgId=1"
 
-		// console.log(tabs);
-		// console.log(tabs[0]);
-		// console.log("123");
-
-		// 卡在这一步
+		// 调用该函数获取内容状态，实参为：getPanelObjects
 		getContentStatus('getPanelObjects');
 
-		// 还没到这一步
+		// 调用该函数获取后台内容的状态，没有参数
 		getBackgroundStatus();
+		
+		// 初始化面板配置页面
 		init();
+		
 	} else {
 		$init_btn.css('display', 'none');
 		$message_btn.html('不是grafana页面').css('display', 'inline-block');
@@ -47,29 +44,34 @@ chrome.tabs.query({
 
 // 获取内容状态----getPanelObjects
 function getContentStatus(cmd = 'getContentStatus', options = {}) {
-	// 这里打印出来的是标签ID
-	// console.log(cmd, dashboardId);
 	// 向指定标签页中的内容脚本发送一个消息，当发回响应时执行一个可选的回调函数。当前扩展程序在指定标签页中的每一个内容脚本都会收到 runtime.onMessage 事件。
-	// tabID、any message、funciton
-	chrome.tabs.sendMessage(dashboardId, {
-		cmd: cmd,
-		options: options
-	}, function(message) {
-		// 在向content-script中完成通讯后得到的返回值，赋值给contentStatus，此时isRuning应该=false
+	chrome.tabs.sendMessage(dashboardId, {cmd: cmd, options: options}, function(message) {
 		contentStatus = message;
+		// 结果如下：
+		// ==========================
+		// isRunning: isRunning, //第一次返回的时候依然还是false
+		// alertMaxNum: alertMaxNum, //第一返回的时候出发次数是7
+		// interval: interval, //第一次返回的时候，时间是10000
+		// voice: voice, //第一次返回的时候，结果是true
+		// panelList: panelList, //第一次返回的时候，是一个panelList.table_panel_container_list里装满new_panel对象的结果集
+		
 		_getContentStatusFinish = true;
 		console.log('contentStatus', contentStatus);
 	});
 }
 
-// 获取后台状态
+// 获取后台进程状态----没有参数
 function getBackgroundStatus(cmd = 'getBackgroundStatus', options = {}) {
-	// 向扩展程序发送一个简单的消息，并可选的获得一个回应
-	chrome.runtime.sendMessage({
-		cmd: cmd,
-		options: options
-	}, function(message) {
+	// 通信：扩展程序--->后台进程
+	chrome.runtime.sendMessage({cmd: cmd,options: options}, function(message) {
 		backgroundStatus = message;
+		// 结果如下：
+		// ==========================
+		// daemonSwitch: daemonSwitch, //第一次返回的参数是false
+		// chandaoSwitch: chandaoSwitch, //第一次返回的参数是false
+		// dashboardId: dashboardId, //第一次返回的编号是0
+		// dashboardUrl: dashboardUrl, //第一次返回的RUL是空
+		
 		_getBackgroundStatusFinish = true;
 		console.log('backgroundStatus', backgroundStatus);
 	});

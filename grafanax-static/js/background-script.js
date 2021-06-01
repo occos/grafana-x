@@ -8,7 +8,7 @@ let tryLoginTimes = 0;
 
 let _isIninting = false;
 
-// 蝉道工时锁
+// 道工时锁
 let _chandaoLock = true;
 
 // 在接收端设置一个runtime.onMessage事件监听器来处理消息（请求，发件人，发送响应）
@@ -48,10 +48,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	
 	// 发送响应
 	sendResponse({
-		daemonSwitch: daemonSwitch,
-		chandaoSwitch: chandaoSwitch,
-		dashboardId: dashboardId,
-		dashboardUrl: dashboardUrl,
+		daemonSwitch: daemonSwitch, //第一次返回的参数是false
+		chandaoSwitch: chandaoSwitch, //第一次返回的参数是false
+		dashboardId: dashboardId, //第一次返回的编号是0
+		dashboardUrl: dashboardUrl, //第一次返回的RUL是空
 	})
 });
 
@@ -155,7 +155,6 @@ function setTimeoutByRefresh(func = {}, logMsg = '') {
 
 function clock() {
 	if (!chandaoSwitch) {
-		console.log('蝉道提醒为关闭状态');
 		return;
 	}
 	let nowHour = (new Date()).getHours();
@@ -173,11 +172,11 @@ function clock() {
 
 function _chandaoAlert() {
 	let speechLine = new SpeechSynthesisUtterance("运维自动化报警");
-	speechLine.rate = 1;
+	speechLine.rate = 0.9;
 	speechLine.volume = 1;
 	window.speechSynthesis.speak(speechLine);
 	speechLine.text = "接口延时异常";
-	speechLine.rate = 1;
+	speechLine.rate = 0.9;
 	speechLine.volume = 1;
 	window.speechSynthesis.speak(speechLine);
 }

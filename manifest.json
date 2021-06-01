@@ -14,7 +14,7 @@
 	//browser_action和page_action只能添加一个
 	"browser_action": { //浏览器级别行为，所有页面均生效
 		//图标的图片
-		"default_icon": "./grafanax-static/icon/icon.png",
+		"default_icon": "icon.png",
 		//单击图标后打开的弹窗页面
 		"default_popup": "popup.html",
 		//鼠标移到图标显示的文字

@@ -31,7 +31,7 @@ let panelList = {
 };
 
 // 触发次数
-let alertMaxNum = 1;
+let alertMaxNum = 7;
 
 // 间隔时间：毫秒
 let interval = 10000;
@@ -55,7 +55,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
 	// 选择要执行的代码块
 	switch (message.cmd) {
-		// 第一个被调用的代码块
 		case 'getPanelObjects':
 			init();
 			break;
@@ -83,10 +82,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 			// 兜底的默认值，什么也不做
 			break;
 
-		case 'login':
-			console.log('尝试重新登录');
-			login(message.tryLoginTimes);
-			break;
+		// case 'login':
+		// 	console.log('尝试重新登录');
+		// 	login(message.tryLoginTimes);
+		// 	break;
 
 		default:
 			console.log('未知命令', message.cmd);
@@ -94,49 +93,47 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
 	// 返回响应
 	sendResponse({
-		isRunning: isRunning,
-		alertMaxNum: alertMaxNum,
-		interval: interval,
-		voice: voice,
-		panelList: panelList,
+		isRunning: isRunning, //第一次返回的时候依然还是false
+		alertMaxNum: alertMaxNum, //第一返回的时候出发次数是7
+		interval: interval, //第一次返回的时候，时间是10000
+		voice: voice, //第一次返回的时候，结果是true
+		panelList: panelList, //第一次返回的时候，是一个panelList.table_panel_container_list里装满new_panel对象的结果集
 	});
 });
 
 // 初始化函数
 function init() {
-	_panelHeader = $(".panel-header.grid-drag-handle"); //找到Header元素
-	_panelContent = _panelHeader.next(); //找到Header元素的下一个元素，也就是Content元素
-	_panelTitle = $(".panel-title-text", _panelHeader); //找到title元素或Header元素
-	panelList = {
-		table_panel_container_list: [], //table面板内容的list
-		// singlestat_panel_color_list: [],
-		// singlestat_panel_num_list: [],
-		// panel_alert_list_list: [],
-	};
+	_panelHeaderList = $(".panel-header.grid-drag-handle"); //找到拥有这个类选择器的所有元素，结果是一个list
+	_panelContentList = _panelHeaderList.next(); //找到这些Header元素的下一个元素，也就是Content元素，结果也是一个list类型
+	_panelTitleList = $(".panel-title-text", _panelHeaderList); //找到Header元素汇总的title元素
+	// panelList = {
+	// table_panel_container_list: [], //table面板内容的list
+	// singlestat_panel_color_list: [],
+	// singlestat_panel_num_list: [],
+	// panel_alert_list_list: [],
+	// };
 
-	// console.log(_panelHeader);
-	// console.log(_panelContent);
 
-	// 识别图表对象
-	// setAllPanelAndDefaultColor();
 
 	// 获取这个数组的长度
-	let length = _panelHeader.length;
+	let length = _panelHeaderList.length;
 
 	// 遍历数组
 	for (let i = 0; i < length; i++) {
 		// 从多个_panelContent中取到其中的一个对象
-		let PS = _panelContent[i];
+		let _onePanelContent = _panelContentList[i];
 
 		// 判断这个对象中是否有多个行
-		if (PS.innerHTML.indexOf('<div role="row"') > 0) {
-			let VS = $("[role='row']:eq(1) [role='cell']:last").css("background-color"); //第一行的颜色
-			let ZS = $("[role='row']:eq(-1) [role='cell']:last").css("background-color"); //最后一行的颜色
+		if (_onePanelContent.innerHTML.indexOf('<div role="row"') > 0) {
+			let _firstCellColor = $("[role='row']:eq(1) [role='cell']:last").css(
+			"background-color"); //第一行的cell颜色，且只找到table类型的图表
+			let _lastCellColor = $("[role='row']:eq(-1) [role='cell']:last").css(
+			"background-color"); //最后一行的cell颜色，且只知道table类型的图表
 
 			// 避免第一条就是红色或者空的情况
-			let colorList = VS.match(/(\d)+/g);
-			if (VS === undefined || colorList[0] >= 200) {
-				VS = '';
+			let colorList = _firstCellColor.match(/(\d)+/g);
+			if (_firstCellColor === undefined || colorList[0] >= 200) {
+				_firstCellColor = '';
 			};
 
 			// 颜色比较和识别
@@ -151,36 +148,31 @@ function init() {
 			// 	return false;
 			// };
 
-			let compare = function() {
+			// 比较结果，结果应该是一个布尔类型
+			let _compareResult = function() {
 				// 判断颜色不等于空，同时不等于默认值
-				if (VS !== undefined && VS !== this.defaultValue) {
+				if ((_firstCellColor !== undefined) && _firstCellColor !== this.defaultValue) {
 					// 调用识别颜色的函数
-					return _colorRecognition(VS);
+					return _colorRecognition(_firstCellColor);
 				} else {
 					console.log("没有进入到颜色识别里面================================")
 				}
+				// 如果if判断没有生效，就直接返回一个false给调用方
 				return false;
 			};
 
-			let this_title = _panelTitle[i].innerHTML;
-			let this_defaultValue = ZS;
-			let this_selector = PS;
-			let this_valueSelector = VS;
-			let this_compareValue = compare;
 
-			let this_panel = new panel(this_title, this_defaultValue, this_selector, this_valueSelector,
+			let this_title = _panelTitleList[i].innerHTML; //字符串
+			let this_defaultValue = _lastCellColor; //初始颜色
+			let this_selector = _onePanelContent; //一个对象
+			let this_valueSelector = _firstCellColor; //现在颜色
+			let this_compareValue = _compareResult; //布尔值
+
+			let new_panel = new panel(this_title, this_defaultValue, this_selector, this_valueSelector,
 				this_compareValue);
-
-			panelList.table_panel_container_list.push(this_panel)
-
-			// panelList.table_panel_container_list.push(new panel(_panelTitle[i].innerHTML, //标题
-			// 	color, //颜色
-			// 	panelSelector, //这是一个对象
-			// 	valueSelector, //这是顶行的数值选择器
-			// 	compare
-			// ));
-		} else {
-			console.log("无法选取DOM元素");
+			panelList.table_panel_container_list.push(new_panel)
+			// 继续下一轮循环
+			// 经过多次循环panelList里面就会装满东西，具体装在：panelList.table_panel_container_list中，里面的每一个对象都是一个字典类型
 		}
 	}
 }
@@ -196,26 +188,7 @@ function _colorRecognition(color) {
 }
 
 
-// 初始化各个图表对象
-function setAllPanelAndDefaultColor() {
-	console.log('开始初始化');
 
-	console.log(length);
-
-
-
-	// 控制台打印日志
-	console.log({
-		isRunning: isRunning,
-		alertMaxNum: alertMaxNum,
-		interval: interval,
-		voice: voice,
-		panelList: panelList,
-	}, '结束初始化');
-}
-//=========================
-//抓取dom的函数到此结束
-//=========================
 
 // 启动监控报警
 function start() {
@@ -230,18 +203,24 @@ function start() {
 	);
 }
 
-
+// 重启按钮
+function restart() {
+	isRunning = true;
+	look();
+}
 
 // 报警触发
 function look() {
-	let alertPanel = []; //一个空的list，用来存放报警面板信息
+	let _alertPanelList = []; //一个空的list，用来存放报警面板信息
 	for (let key in panelList) {
 		try {
 			// 这里得到的事一个报警面板的list，然后经过concat方法的合并，最终得到一个更大的list然后赋值给alertPanel
-			alertPanel = alertPanel.concat(compare(panelList[key])); //concat方法，合并两个或多个数组，此方法不会更改现有数据，而是返回一个新的数组
+			_alertPanelList = _alertPanelList.concat(compare(panelList[
+			key])); //concat方法，合并两个或多个数组，此方法不会更改现有数据，而是返回一个新的数组
 		} catch (e) {
 			console.log(e, '累计异常次数:' + _errorCount);
 			if (_errorCount >= alertMaxNum) {
+				// 向后台进程发起通信
 				chrome.runtime.sendMessage({
 					cmd: "alert",
 					message: {
@@ -257,11 +236,11 @@ function look() {
 		}
 	} //for循环结束
 
-	let length = alertPanel.length; //获取大号的报警面板长度
+	let length = _alertPanelList.length; //获取大号的报警面板长度
 	let alertCount = 0; //新增变量报警计数0
 
 	for (let i = 0; i < length; i++) {
-		alertCount += alertPanel[i].alertNum; //报警计数加等于所有报警面板中积攒的数字
+		alertCount += _alertPanelList[i].alertNum; //报警计数加等于所有报警面板中积攒的数字
 	}
 
 	// 如果报警总计数大于报警分界线
@@ -269,18 +248,16 @@ function look() {
 		console.log('累计告警次数:' + alertCount);
 		let title = '';
 		for (let i = 0; i < length; i++) {
-			alertPanel[i].alertNum = -alertMaxNum * 30;
-			title += alertPanel[i].title + '，';
+			_alertPanelList[i].alertNum = -alertMaxNum * 30;
+			title += _alertPanelList[i].title + '，';
 		}
 
-		// panelList.table_panel_container_list.title;
-
-		// 通信
+		// 向后台进程发起通信
 		chrome.runtime.sendMessage({
 			cmd: "alert",
 			message: {
 				title: title,
-				message: "测试报警",
+				message: alertCount,
 				voice: voice
 			}
 		});
@@ -292,38 +269,39 @@ function look() {
 }
 
 // 图表对象比对
-function compare(panelList) {
-	let length = panelList.length; //获取面板集合的长度
+function compare(table_panel_container_list) {
+	let length = table_panel_container_list.length; //获取面板集合的长度
 	let alertPanel = []; //声明一个空的list，存放报警面板信息
 
 	for (let i = 0; i < length; i++) {
-		let panel = panelList[i]; //从list中拿到一个面板
-		if (panel === null) { //如果当前面板信息为空
+		let _thisPanel = table_panel_container_list[i]; //从list中拿到一个面板
+		if (_thisPanel === null) { //如果当前面板信息为空
 			continue; //则仅终止当前一次循环
 		}
 		try {
 			// 面板的现在值等于panel对象的VS值
-			panel.nowValue = panel.valueSelector();
+			_thisPanel.nowValue = _thisPanel.valueSelector;
 
-			// 调用panel对象的compareValue()方法，返回值应该是一个布尔
-			if (panel.compareValue()) {
-				if (panel.alertNum > 0) { //判断报警次数是否大于零
-					alertPanel.push(panel); //如果报警次数大于零，就在报警面板的list中追加一个面板对象
+			// 调用panel对象中的compareValue存放的本来就是一个布尔值
+			if (_thisPanel.compareValue) {
+				if (_thisPanel.alertNum > 0) { //判断报警次数是否大于零
+					alertPanel.push(_thisPanel); //如果报警次数大于零，就在报警面板的list中追加一个面板对象
 				}
-				panel.alertNum++; //然后再panel对象的报警次数上+1
+				_thisPanel.alertNum++; //然后再panel对象的报警次数上+1
 				let date = new Date();
-				console.log('时间:' + date.toLocaleTimeString() + ' 仪表盘:' + panel.title + ' 值为:' + panel.nowValue +
-					' 累计次数:' + panel.alertNum);
+				console.log('时间:' + date.toLocaleTimeString() + ' 仪表盘:' + _thisPanel.title + ' 值为:' + _thisPanel
+					.nowValue +
+					' 累计次数:' + _thisPanel.alertNum);
 			} else {
 				// 如果panel对象的compareValue()方法返回的事false，则把报警次数强制修改为0
-				panel.alertNum = 0;
+				_thisPanel.alertNum = 0;
 			}
 		} catch (e) {
-			if (panel.alertNum > 0) {
-				alertPanel.push(panel);
+			if (_thisPanel.alertNum > 0) {
+				alertPanel.push(_thisPanel);
 			}
-			panel.alertNum++;
-			console.log('数据获取异常：', panel.alertNum, e);
+			_thisPanel.alertNum++;
+			console.log('数据获取异常：', _thisPanel.alertNum, e);
 		}
 	}
 	// 但会一个报警面板的list
@@ -356,31 +334,28 @@ function _updatePanelList(newPanelList) {
 
 
 
-function login(tryLoginTimes) {
-	if (2 > tryLoginTimes) {
-		$('button', $("input[name='password']").parent().next()).click();
-	} else {
-		$.post({
-			url: "/login",
-			async: true,
-			data: {
-				user: "readonly",
-				email: "",
-				password: "readonly"
-			},
-			done: function(data) {
-				console.log(data);
+// function login(tryLoginTimes) {
+// 	if (2 > tryLoginTimes) {
+// 		$('button', $("input[name='password']").parent().next()).click();
+// 	} else {
+// 		$.post({
+// 			url: "/login",
+// 			async: true,
+// 			data: {
+// 				user: "readonly",
+// 				email: "",
+// 				password: "readonly"
+// 			},
+// 			done: function(data) {
+// 				console.log(data);
 
-			}
-		});
-	}
-	setTimeout(function() {
-		location.reload();
-	}, 5000);
-}
+// 			}
+// 		});
+// 	}
+// 	setTimeout(function() {
+// 		location.reload();
+// 	}, 5000);
+// }
 
 
-function restart() {
-	isRunning = true;
-	look();
-}
+
