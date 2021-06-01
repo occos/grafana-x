@@ -1,6 +1,6 @@
 // 后台运行的js
 
-let chandaoSwitch = false;
+
 let daemonSwitch = false;
 let dashboardId = 0;
 let dashboardUrl = '';
@@ -9,7 +9,7 @@ let tryLoginTimes = 0;
 let _isIninting = false;
 
 // 道工时锁
-let _chandaoLock = true;
+let _tmpTestLock = true;
 
 // 在接收端设置一个runtime.onMessage事件监听器来处理消息（请求，发件人，发送响应）
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -19,37 +19,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			console.log('alert:', request.message);
 			alert(request.message);
 			break;
-		
-		case 'setBackgroundStatus':
-			console.log('setBackgroundStatus:', request.options);
-			chandaoSwitch = request.options.chandaoSwitch;
-			daemonSwitch = request.options.daemonSwitch;
-			dashboardId = request.options.dashboardId;
-			dashboardUrl = request.options.dashboardUrl;
-			if (chandaoSwitch) {
-				clock();
-			}
-			break;
-		
-		// 第一个被触发的是这个代码块
+
+
+
+			// 第一个被触发的是这个代码块
 		case 'getBackgroundStatus':
-			// console.log('getBackgroundStatus:', {
-			// 	daemonSwitch: daemonSwitch, //赋予守护进程开关默认值
-			// 	chandaoSwitch: chandaoSwitch, //赋予开关默认值
-			// 	dashboardId: dashboardId, //赋予仪表板ID，此处默认值为空
-			// 	dashboardUrl: dashboardUrl, //赋予仪表板URL，此处默认值为空
-			// });
-			// _chandaoAlert();
+			// _handaoAlert();
 			break;
-			
+
 		default:
 			console.log('未知命令', request.cmd);
 	}
-	
+
 	// 发送响应
 	sendResponse({
 		daemonSwitch: daemonSwitch, //第一次返回的参数是false
-		chandaoSwitch: chandaoSwitch, //第一次返回的参数是false
 		dashboardId: dashboardId, //第一次返回的编号是0
 		dashboardUrl: dashboardUrl, //第一次返回的RUL是空
 	})
@@ -112,7 +96,7 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
 				});
 			}, 10000);
 		} else {
-			chandaoSwitch = false;
+
 			daemonSwitch = false;
 			dashboardId = 0;
 			dashboardUrl = '';
@@ -154,23 +138,20 @@ function setTimeoutByRefresh(func = {}, logMsg = '') {
 }
 
 function clock() {
-	if (!chandaoSwitch) {
-		return;
-	}
 	let nowHour = (new Date()).getHours();
 	let nowMinute = (new Date()).getMinutes();
-	if (_chandaoLock && (nowHour === 18) && (nowMinute >= 10)) {
-		_chandaoAlert();
-		_chandaoLock = false;
+	if (_tmpTestLock && (nowHour === 18) && (nowMinute >= 10)) {
+		_tmpTestAlert();
+		_tmpTestLock = false;
 	} else if (nowHour !== 18) {
-		_chandaoLock = true;
+		_tmpTestLock = true;
 	}
 	setTimeout(function() {
 		clock();
 	}, 1000 * 60 * 10);
 }
 
-function _chandaoAlert() {
+function _handaoAlert() {
 	let speechLine = new SpeechSynthesisUtterance("运维自动化报警");
 	speechLine.rate = 0.9;
 	speechLine.volume = 1;

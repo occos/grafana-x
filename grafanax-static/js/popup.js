@@ -68,7 +68,6 @@ function getBackgroundStatus(cmd = 'getBackgroundStatus', options = {}) {
 		// 结果如下：
 		// ==========================
 		// daemonSwitch: daemonSwitch, //第一次返回的参数是false
-		// chandaoSwitch: chandaoSwitch, //第一次返回的参数是false
 		// dashboardId: dashboardId, //第一次返回的编号是0
 		// dashboardUrl: dashboardUrl, //第一次返回的RUL是空
 		
@@ -115,7 +114,6 @@ function popupWindow() {
 	$('#interval').val(contentStatus.interval); //默认值是10000毫秒，直接设置到DOM中
 	$('#limit').val(contentStatus.alertMaxNum); //触发次数，默认值是1，写入到报警触发边界中
 	$('#voice').attr("checked", contentStatus.voice); //语音开关是true，直接设置到DOM中
-	// $('#chandaoSwitch').attr("checked", backgroundStatus.chandaoSwitch);
 	$('#daemonSwitch').attr("checked", backgroundStatus.daemonSwitch); //守护进程开关默认是false，直接设置到DOM中
 
 	let tableList = '';
@@ -202,7 +200,6 @@ function getOptions() {
 	options.interval = $('#interval').val(); //间隔时间
 	options.alertMaxNum = $('#limit').val(); //触发边界
 	options.voice = $('#voice').is(':checked'); //语音开关
-	// options.chandaoSwitch = $('#chandaoSwitch').is(':checked');
 	options.daemonSwitch = $('#daemonSwitch').is(':checked'); //后台开关
 	options.dashboardId = dashboardId; //仪表盘ID
 	options.dashboardUrl = dashboardUrl; //仪表盘URL
