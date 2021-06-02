@@ -1,4 +1,4 @@
-let panelList = {}; //面板集合，字典类型
+// let panelList = {}; //面板集合，字典类型
 let contentStatus = {}; //内容状态，字典类型
 let backgroundStatus = {}; //后台状态，字典类型
 let dashboardId = 0; //仪表盘ID
@@ -8,6 +8,7 @@ let dashboardUrl = ''; //仪表盘URL
 let $message_btn = $('#message_btn');
 let $init_btn = $('#init_btn');
 let $restart_btn = $('#restart_btn');
+let $stop_btn = $('#stop_btn');
 let $start_btn = $('#start_btn');
 
 // 获取内容状态完成的变量
@@ -66,7 +67,6 @@ function getBackgroundStatus(cmd = 'getBackgroundStatus', options = {}) {
         backgroundStatus = message;
         // 结果如下：
         // ==========================
-        // daemonSwitch: daemonSwitch, //第一次返回的参数是false
         // dashboardId: dashboardId, //第一次返回的编号是0
         // dashboardUrl: dashboardUrl, //第一次返回的RUL是空
 
@@ -82,14 +82,8 @@ function init() {
         if (contentStatus.isRunning) {
             $init_btn.css('display', 'none');
             $restart_btn.css('display', 'inline-block');
+            $stop_btn.css('display', 'inline-block');
             popupWindow();
-        } else if (backgroundStatus.daemonSwitch) {
-            $init_btn.css('display', 'none');
-            let message = '正在尝试重启';
-            if (backgroundStatus.dashboardId !== dashboardId) {
-                message = '目前只支持单个dashboard';
-            }
-            $message_btn.html(message).css('display', 'inline-block');
         } else {
             console.log("如果守护进程也没开，就什么都不做");
         }
@@ -101,34 +95,32 @@ function init() {
     }
 }
 
-// 点击初始化监控
+/*
+*
+* 初始化监控按钮，点击之后出发的动作
+*
+* */
+// 初始化监控
 $init_btn.click(function () {
     popupWindow();
     $(this).css('display', 'none'); //初始化监控按钮隐藏
     $start_btn.css('display', 'inline-block'); //开始运行按钮显示为块
 });
 
-// 弹出窗口（显示运行之前的设置面板）
+// 弹出初始化窗口的面板
 function popupWindow() {
-    $('#interval').val(contentStatus.interval); //默认值是10000毫秒，直接设置到DOM中
-    $('#limit').val(contentStatus.alertMaxNum); //触发次数，默认值是1，写入到报警触发边界中
-    $('#voice').attr("checked", contentStatus.voice); //语音开关是true，直接设置到DOM中
-    $('#daemonSwitch').attr("checked", backgroundStatus.daemonSwitch); //守护进程开关默认是false，直接设置到DOM中
+    $('#interval').val(contentStatus.interval); //为id=interval的元素设置默认值
+    $('#limit').val(contentStatus.alertMaxNum); //为id=limit的元素设置默认值
+    $('#voice').attr("checked", contentStatus.voice); //为id=voice的元素，设置其checked的值
 
-    let tableList = '';
-    console.log("444--------------------------");
-    console.log(contentStatus.panelList);
-    for (let key in contentStatus.panelList) { //内容状态中给出的返回值里包含panelList
-        console.log(key);
-        tableList += _tableContent(contentStatus.panelList[key], key);
+    let _tableList = '';
+    for (let i in contentStatus.panelList) {
+        _tableList += _tableContent(contentStatus.panelList[i], i);
     }
     $("body").css("width", "500px");
-    $("#tableList").html(tableList);
+    $("#tableList").html(_tableList);
     $("#form").css('display', 'inline');
 }
-
-// 弹出窗口运行，到此结束，剩下的动作就需要其它按钮来触发了
-
 
 // 形成表格
 function _tableContent(panelList, type) {
@@ -149,7 +141,6 @@ function _tableContent(panelList, type) {
         table += _trContent(i, panelList[i].title, panelList[i].defaultValue, type);
     }
     table += `</tbody></table>`;
-
     return table;
 }
 
@@ -166,57 +157,76 @@ function _trContent(tableNum, title, value, type) {
         </tr>`;
 }
 
-// ========================================================
-// ========================================================
-// ========================================================
 
+/*
+*
+* 运行按钮点击后开始的动作
+*
+* */
 
 // 确认并开始监控
 $start_btn.click(function () {
     // ID异常时，强制终止运行
+    console.log('5555555555555555555555555555555555')
     if (dashboardId === 0) {
         console.log('dashboard页面异常');
         return;
     }
     let options = getOptions(); //得到一个字典对象
-    getContentStatus('start', options); //发起一个后端通讯，这一次携带的参数不一样
-    getBackgroundStatus('setBackgroundStatus', options);
-    $(this).css('display', 'none');
-    $restart_btn.css('display', 'inline-block');
+    getContentStatus('start', options); //向后端发起通信
+    // getBackgroundStatus('setBackgroundStatus', options); //向后端发起通信
+
+    $(this).css('display', 'none'); //隐藏自身按钮
+    $restart_btn.css('display', 'inline-block'); //并把另一个按钮打开
+    $stop_btn.css('display', 'inline-block'); //并把另一个按钮打开
 });
 
+//正在监视中，点击按钮更新配置并重启监视
 $restart_btn.click(function () {
     let options = getOptions();
     getContentStatus('restart', options);
-    getBackgroundStatus('setBackgroundStatus', options);
+    // getBackgroundStatus('setBackgroundStatus', options);
+});
+
+//正在监视中，点击按钮更新配置并重启监视
+$stop_btn.click(function () {
+    let options = getOptions();
+    getContentStatus('stop', options);
+    // getBackgroundStatus('setBackgroundStatus', options);
+
+    $(this).css('display', 'none'); //隐藏自身按钮
+    $restart_btn.css('display', 'none'); //并把另一个按钮打开
+    $start_btn.css('display', 'inline-block'); //并把另一个按钮打开
 });
 
 
 // 获取运行参数，这些参数都是之前各个环境中拼接好的，直接获取即可
 function getOptions() {
-    let options = {}; //声明一个空的字典
-    options.interval = $('#interval').val(); //间隔时间
-    options.alertMaxNum = $('#limit').val(); //触发边界
-    options.voice = $('#voice').is(':checked'); //语音开关
-    options.daemonSwitch = $('#daemonSwitch').is(':checked'); //后台开关
-    options.dashboardId = dashboardId; //仪表盘ID
-    options.dashboardUrl = dashboardUrl; //仪表盘URL
-    _setPanelListValue();
-    options.panelList = panelList; //面板集合
-    return options; //返回一个字典对象
+    let _options = {};
+    _options.interval = $('#interval').val(); //间隔时间，从初始化面板中获取数据
+    _options.alertMaxNum = $('#limit').val(); //触发边界，从初始化面板中获取数据
+    _options.voice = $('#voice').is(':checked'); //语音开关，从初始化面板中获取数据
+    _options.dashboardId = dashboardId; //仪表盘ID，默认是0，在上文中被修改为了有意义的值
+    _options.dashboardUrl = dashboardUrl; //仪表盘URL，默认是空，在上文中被修改为了有意义的值
+    console.log("6666666666666666666666666666666666666666666666")
+    // _setPanelListValue();
+    // _options.panelList = panelList; //面板集合
+    return _options; //返回一个字典对象
 }
 
 // 面板详情数据（list数据）
-function _setPanelListValue() {
-    for (let key in panelList) { //遍历面板集合
-        if (panelList.hasOwnProperty(key)) { //判断面板集合中是否有指定的键
-            let length = panelList[key].length; //获取单个面板的长度
-            for (let i = 0; i < length; i++) { //遍历面板的子集对象
-                panelList[key][i] = $("#panel_value_" + key + i).val(); //给文本框里赋值
-                if ($("#panel_" + key + i).is(':checked') === false) {
-                    panelList[key][i] = null;
-                }
-            }
-        }
-    }
-}
+// function _setPanelListValue() {
+//     console.log("7777777777777777777777777")
+//     console.log(panelList)
+//     for (let key in panelList) { //遍历面板集合
+//         if (panelList.hasOwnProperty(key)) { //判断面板集合中是否有指定的键
+//             let length = panelList[key].length; //获取单个面板的长度
+//             for (let i = 0; i < length; i++) { //遍历面板的子集对象
+//                 panelList[key][i] = $("#panel_value_" + key + i).val(); //给文本框里赋值
+//                 if ($("#panel_" + key + i).is(':checked') === false) {
+//                     panelList[key][i] = null;
+//                 }
+//             }
+//         }
+//     }
+// }

@@ -18,6 +18,7 @@
         <a id="message_btn" class="btn btn-success" style="display: none">提示信息按钮</a>
         <a id="start_btn" class="btn btn-primary" style="display: none">确认并开始监控</a>
         <a id="restart_btn" class="btn btn-primary" style="display: none">正在监视中，点击按钮更新配置并重启监视</a>
+        <a id="stop_btn" class="btn btn-primary" style="display: none;background-color: red">停止监控</a>
     </div>
     <div id="form" style="display: none;">
         <hr>
@@ -32,10 +33,6 @@
         <div class="form-group">
             <label for="voice" class="col-4" style="display: inline">人工语音开关：</label>
             <input type="checkbox" class="col-5 form-control" id="voice" style="display: inline" checked>
-        </div>
-        <div class="form-group">
-            <label for="daemonSwitch" class="col-4" style="display: inline">后台守护开关：</label>
-            <input type="checkbox" class="col-5 form-control" id="daemonSwitch" style="display: inline" checked>
         </div>
         <div id="tableList" class="row" style="margin: 5px">
         </div>
