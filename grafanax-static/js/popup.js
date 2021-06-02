@@ -19,10 +19,11 @@ let _waitCount = 0; //等待次数
 
 // 通信：扩展程序--->内容脚本
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-    let reg = /^http:\/\/grafana.iquanwai.work\/d\/.*/;
+    // let reg = /^http:\/\/grafana.iquanwai.work\/d\/.*/;
+    let reg = /grafana.iquanwai.work/g;
 
-    // if (reg.test(tabs[0].url)) {
-    if (true) {
+    if (reg.test(tabs[0].url)) {
+        // if (true) {
         dashboardId = tabs[0].id; //获取标签页ID：106
         dashboardUrl = tabs[0].url; //获取标签页RUL："http://grafana.iquanwai.work/d/4y_eIZeMz/testmian-ban?orgId=1"
 
