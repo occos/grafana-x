@@ -1,68 +1,64 @@
 {
-	//插件描述
-	"description": "Grafana语音报警插件",
-
-	//清单版本号，建议使用版本2，版本1是旧的，已弃用不建议使用（此时google已经推出版本3了，爱尝鲜的小伙伴可以试一下）
-	"manifest_version": 2,
-
-	//插件名称
-	"name": "grafanaX",
-
-	//插件版本
-	"version": "0.28.0",
-
-	//browser_action和page_action只能添加一个
-	"browser_action": { //浏览器级别行为，所有页面均生效
-		//图标的图片
-		"default_icon": "icon.png",
-		//单击图标后打开的弹窗页面
-		"default_popup": "popup.html",
-		//鼠标移到图标显示的文字
-		"default_title": "Grafana语音报警插件"
-	},
-
-	//声明插件所需要的权限
-	"permissions": [
-		// 后台
-		"background",
-		//通知
-		"notifications",
-		//标签
-		"tabs",
-		// web请求
-		"webRequest",
-		// 可以通过executeScript或者insertCSS访问的网站
-		"http://*/*",
-		// 可以通过executeScript或者insertCSS访问的网站
-		"https://*/*"
-	],
-
-	//会一直常驻后台的页面
-	"background": {
-		"page": "background.html"
-	},
-
-	//定义对页面内容进行操作的脚本
-	"content_scripts": [{
-		"matches": [
-			"http://grafana.iquanwai.work/*" // 只在这些站点下 content_scripts会运行
-			// "<all_urls>"
-		],
-		// 调用的js文件位置
-		"js": [
-			"./grafanax-static/jquery/jquery-3.3.1.min.js",
-			"./grafanax-static/js/content-script.js"
-		],
-		// 代码注入的时间，可选值： "document_start", "document_end", or "document_idle"，最后一个表示页面空闲时，默认document_idle
-		"run_at": "document_end"
-	}],
-
-	//可以连接该应用的网页或其它扩展程序 
-	"externally_connectable": {
-		"matches": [
-			"http://grafana.iquanwai.work/*"
-			// "<all_urls>"
-		],
-		"accepts_tls_channel_id": false
-	}
+  //插件描述
+  "description": "Grafana语音报警插件",
+  //清单版本号，建议使用版本2，版本1是旧的，已弃用不建议使用（此时google已经推出版本3了，爱尝鲜的小伙伴可以试一下）
+  "manifest_version": 2,
+  //插件名称
+  "name": "grafanaX",
+  //插件版本
+  "version": "0.28.0",
+  //browser_action和page_action只能添加一个
+  "browser_action": {
+    //浏览器级别行为，所有页面均生效
+    //图标的图片
+    "default_icon": "icon.png",
+    //单击图标后打开的弹窗页面
+    "default_popup": "popup.html",
+    //鼠标移到图标显示的文字
+    "default_title": "Grafana语音报警插件"
+  },
+  //声明插件所需要的权限
+  "permissions": [
+    // 后台
+    "background",
+    //通知
+    "notifications",
+    //标签
+    "tabs",
+    // web请求
+    "webRequest",
+    // 可以通过executeScript或者insertCSS访问的网站
+    "http://*/*",
+    // 可以通过executeScript或者insertCSS访问的网站
+    "https://*/*"
+  ],
+  //会一直常驻后台的页面
+  "background": {
+    "page": "background.html"
+  },
+  //定义对页面内容进行操作的脚本
+  "content_scripts": [
+    {
+      "matches": [
+        "http://grafana.iquanwai.work/*"
+        // 只在这些站点下 content_scripts会运行
+        // "<all_urls>"
+      ],
+      // 调用的js文件位置
+      "js": [
+        "./grafanax-static/jquery/jquery-3.3.1.min.js",
+        "./grafanax-static/js/content-script.js"
+      ],
+      // 代码注入的时间，可选值： "document_start", "document_end", or "document_idle"，最后一个表示页面空闲时，默认document_idle
+      "run_at": "document_end"
+    }
+  ],
+  //可以连接该应用的网页或其它扩展程序
+  "externally_connectable": {
+    "matches": [
+      "http://grafana.iquanwai.work/*"
+      // "<all_urls>"
+    ],
+    "accepts_tls_channel_id": false
+  }
 }

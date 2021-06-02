@@ -1,50 +1,50 @@
 <!doctype html>
 <html>
-	<head>
-		<!-- 这里是单击图标后的弹窗页面 -->
-		<title>grafana</title>
-		<meta charset="utf8">
-		<link rel="stylesheet" href="grafanax-static/bootstrap/bootstrap.min.css">
-		<style>
-			.table td {
-				vertical-align: baseline !important;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-			<div id="buttons_div" style="text-align:center;margin: 5px">
-				<a id="init_btn" class="btn btn-primary">初始化监控</a>
-				<a id="message_btn" class="btn btn-success" style="display: none">提示信息按钮</a>
-				<a id="start_btn" class="btn btn-primary" style="display: none">确认并开始监控</a>
-				<a id="restart_btn" class="btn btn-primary" style="display: none">正在监视中，点击按钮更新配置并重启监视</a>
-			</div>
-			<div id="form" style="display: none;">
-				<hr>
-				<div class="form-group">
-					<label for="interval" class="col-4" style="display: inline">监视间隔(ms)：</label>
-					<input type="text" class="col-5 form-control" value="10000" id="interval" style="display: inline">
-				</div>
-				<div class="form-group">
-					<label for="limit" class="col-4" style="display: inline">报警触发边界：</label>
-					<input type="text" class="col-5 form-control" value="5" id="limit" style="display: inline">
-				</div>
-				<div class="form-group">
-					<label for="voice" class="col-4" style="display: inline">人工语音开关：</label>
-					<input type="checkbox" class="col-5 form-control" id="voice" style="display: inline" checked>
-				</div>
-				<div class="form-group">
-					<label for="daemonSwitch" class="col-4" style="display: inline">后台守护开关：</label>
-					<input type="checkbox" class="col-5 form-control" id="daemonSwitch" style="display: inline" checked>
-				</div>
-				<div id="tableList" class="row" style="margin: 5px">
-				</div>
-			</div>
+<head>
+    <!-- 这里是单击图标后的弹窗页面 -->
+    <title>grafana</title>
+    <meta charset="utf8">
+    <link rel="stylesheet" href="grafanax-static/bootstrap/bootstrap.min.css">
+    <style>
+        .table td {
+            vertical-align: baseline !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="buttons_div" style="text-align:center;margin: 5px">
+        <a id="init_btn" class="btn btn-primary">初始化监控</a>
+        <a id="message_btn" class="btn btn-success" style="display: none">提示信息按钮</a>
+        <a id="start_btn" class="btn btn-primary" style="display: none">确认并开始监控</a>
+        <a id="restart_btn" class="btn btn-primary" style="display: none">正在监视中，点击按钮更新配置并重启监视</a>
+    </div>
+    <div id="form" style="display: none;">
+        <hr>
+        <div class="form-group">
+            <label for="interval" class="col-4" style="display: inline">监视间隔(ms)：</label>
+            <input type="text" class="col-5 form-control" value="10000" id="interval" style="display: inline">
+        </div>
+        <div class="form-group">
+            <label for="limit" class="col-4" style="display: inline">报警触发边界：</label>
+            <input type="text" class="col-5 form-control" value="5" id="limit" style="display: inline">
+        </div>
+        <div class="form-group">
+            <label for="voice" class="col-4" style="display: inline">人工语音开关：</label>
+            <input type="checkbox" class="col-5 form-control" id="voice" style="display: inline" checked>
+        </div>
+        <div class="form-group">
+            <label for="daemonSwitch" class="col-4" style="display: inline">后台守护开关：</label>
+            <input type="checkbox" class="col-5 form-control" id="daemonSwitch" style="display: inline" checked>
+        </div>
+        <div id="tableList" class="row" style="margin: 5px">
+        </div>
+    </div>
 
-		</div>
+</div>
 
-		<script src="./grafanax-static/jquery/jquery-3.3.1.min.js"></script>
-		<script src="./grafanax-static/js/popup.js"></script>
-	</body>
+<script src="./grafanax-static/jquery/jquery-3.3.1.min.js"></script>
+<script src="./grafanax-static/js/popup.js"></script>
+</body>
 
 </html>
