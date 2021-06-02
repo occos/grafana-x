@@ -209,8 +209,45 @@ function restart() {
 	look();
 }
 
+const lagencyClass = 'css-1w5pd0q'
+const warnningLimit = 5
+const warnningList = []
+const warnningColor = 'orange'
+
 // 报警触发
 function look() {
+	
+	const styleDom = document.createElement('style')
+	styleDom.innerHTML = `
+		.warnning-color {
+			background: ${warnningColor}
+		}
+	`
+	document.head.appendChild(styleDom)
+	
+	let  pannelList = $('.panel-wrapper')
+	pannelList = [].slice.call(pannelList)
+	pannelList.forEach(item => {
+		const pannelTitle = item.querySelector('.panel-title-text').innerText
+
+		let chartsValueCell = item.querySelectorAll('.' + lagencyClass)
+		chartsValueCell = [].slice.call(chartsValueCell);
+		chartsValueCell.forEach(item => {
+			const value = item.innerText
+			if (value > warnningLimit) {
+				warnningList.push({
+					pannelTitle: pannelTitle,
+					lagency: value
+				})
+				const originClassName = item.parentNode.getAttribute('class')
+				item.parentNode.setAttribute('class', originClassName + ' ' + 'warnning-color')
+			}
+		})
+	})
+	
+	
+	console.log(warnningList)
+	
 	let _alertPanelList = []; //一个空的list，用来存放报警面板信息
 	for (let key in panelList) {
 		try {

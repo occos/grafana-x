@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 
 
-			// 第一个被触发的是这个代码块
+			//后台进程初始化
 		case 'getBackgroundStatus':
 			// _handaoAlert();
 			break;
