@@ -213,7 +213,7 @@ function look() {
         let title = '';
         let _length = _alertPanelList.length;
         for (let i = 0; i < _length; i++) {
-            title += _alertPanelList[i].title + '，';
+            title += _alertPanelList[i].title + '报警，';
         }
         console.log("==========人工语音报警被触发==========当前alertCount值为：", globalPanelList.alertCount)
         chrome.runtime.sendMessage({
@@ -228,7 +228,7 @@ function look() {
         globalPanelList.alertCount = 0
         init()
     }
-
+    console.log("轮询完成，当前alertCount值为：", globalPanelList.alertCount)
     if (isRunning === true) {
         setTimeout("look()", interval * 1000);
     }
