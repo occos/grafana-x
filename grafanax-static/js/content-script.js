@@ -23,7 +23,7 @@ class redCell {
     gapNumber = 0; //老新次数差
     index = [];
     title = '';
-    defaultValue = "(200, x, x)";
+    defaultValue = "(230, x, x)";
 
     //构造器
     constructor() {
@@ -157,7 +157,7 @@ function getColor() {
 //==========================
 function isMonitoring(this_color) {
     let _colorSplitList = this_color.match(/(\d)+/g);
-    return _colorSplitList[1] >= 200 && _colorSplitList[4] >= 200
+    return _colorSplitList[1] >= 230 && _colorSplitList[4] >= 230
 }
 
 
