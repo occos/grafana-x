@@ -1,25 +1,31 @@
-// let panelList = {}; //面板集合，字典类型
-let contentStatus = {}; //内容状态，字典类型
-let backgroundStatus = {}; //后台状态，字典类型
+let contentStatusMessage = {}; //内容状态，字典类型
+let backgroundStatusMessage = {}; //后台状态，字典类型
 let dashboardId = 0; //仪表盘ID
 let dashboardUrl = ''; //仪表盘URL
 
+
+//==========================
 // 找到页面上的按钮
+//==========================
 let $message_btn = $('#message_btn');
 let $init_btn = $('#init_btn');
 let $restart_btn = $('#restart_btn');
 let $stop_btn = $('#stop_btn');
 let $start_btn = $('#start_btn');
 
+
+//==========================
 // 获取内容状态完成的变量
+//==========================
 let _getContentStatusFinish = false; //该变量表示获取内容状态后的结果，初始值为false，获取完成后状态会被修改
 let _getBackgroundStatusFinish = false; //该变量表示获取后台状态后的结果，初始值为false，获取完成后状态会被修改
 let _waitCount = 0; //等待次数
 
 
-// 通信：扩展程序--->内容脚本
+//==========================
+// 标签页事件
+//==========================
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-    // let reg = /^http:\/\/grafana.iquanwai.work\/d\/.*/;
     let reg = /grafana.iquanwai.work/g;
 
     if (reg.test(tabs[0].url)) {
@@ -43,11 +49,13 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 });
 
 
-// 获取内容状态----getPanelObjects
+//==========================
+// 发起通信
+//==========================
 function getContentStatus(cmd = 'getContentStatus', options = {}) {
     // 向指定标签页中的内容脚本发送一个消息，当发回响应时执行一个可选的回调函数。当前扩展程序在指定标签页中的每一个内容脚本都会收到 runtime.onMessage 事件。
     chrome.tabs.sendMessage(dashboardId, {cmd: cmd, options: options}, function (message) {
-        contentStatus = message;
+        contentStatusMessage = message;
         // 结果如下：
         // ==========================
         // isRunning: isRunning, //第一次返回的时候依然还是false
@@ -57,30 +65,36 @@ function getContentStatus(cmd = 'getContentStatus', options = {}) {
         // panelList: panelList, //第一次返回的时候，是一个panelList.table_panel_container_list里装满new_panel对象的结果集
 
         _getContentStatusFinish = true;
-        console.log('contentStatus', contentStatus);
+        console.log('contentStatus', contentStatusMessage);
     });
 }
 
-// 获取后台进程状态----没有参数
+
+//==========================
+// 发起通信
+//==========================
 function getBackgroundStatus(cmd = 'getBackgroundStatus', options = {}) {
     // 通信：扩展程序--->后台进程
     chrome.runtime.sendMessage({cmd: cmd, options: options}, function (message) {
-        backgroundStatus = message;
+        backgroundStatusMessage = message;
         // 结果如下：
         // ==========================
         // dashboardId: dashboardId, //第一次返回的编号是0
         // dashboardUrl: dashboardUrl, //第一次返回的RUL是空
 
         _getBackgroundStatusFinish = true;
-        console.log('backgroundStatus', backgroundStatus);
+        console.log('backgroundStatus', backgroundStatusMessage);
     });
 }
 
+
+//==========================
 // 初始化函数
+//==========================
 function init() {
     // 这两个变量在getContentStatus()与getBackgroundStatus()函数中会被改写为true；
     if (_getBackgroundStatusFinish && _getContentStatusFinish) {
-        if (contentStatus.isRunning) {
+        if (contentStatusMessage.isRunning) {
             $init_btn.css('display', 'none');
             $restart_btn.css('display', 'inline-block');
             $stop_btn.css('display', 'inline-block');
@@ -96,36 +110,44 @@ function init() {
     }
 }
 
-/*
-*
-* 初始化监控按钮，点击之后出发的动作
-*
-* */
-// 初始化监控
+
+//==========================
+// 初始化点击事件
+//==========================
 $init_btn.click(function () {
     popupWindow();
     $(this).css('display', 'none'); //初始化监控按钮隐藏
     $start_btn.css('display', 'inline-block'); //开始运行按钮显示为块
 });
 
-// 弹出初始化窗口的面板
-function popupWindow() {
-    $('#interval').val(contentStatus.interval); //为id=interval的元素设置默认值
-    $('#limit').val(contentStatus.alertMaxNum); //为id=limit的元素设置默认值
-    $('#voice').attr("checked", contentStatus.voice); //为id=voice的元素，设置其checked的值
 
+//==========================
+// 弹出初始化窗口的面板
+//==========================
+function popupWindow() {
+    $('#interval').val(contentStatusMessage.interval); //为id=interval的元素设置默认值
+    $('#limit').val(contentStatusMessage.alertMaxNum); //为id=limit的元素设置默认值
+    $('#voice').attr("checked", contentStatusMessage.voice); //为id=voice的元素，设置其checked的值
+    console.log(contentStatusMessage)
     let _tableList = '';
-    for (let i in contentStatus.panelList) {
-        _tableList += _tableContent(contentStatus.panelList[i], i);
-    }
+    // for (let i in contentStatusMessage.panelList.monitoring_list) {
+    // console.log(i)
+    _tableList += _tableContent(contentStatusMessage.panelList.monitoring_list);
+    // }
     $("body").css("width", "500px");
     $("#tableList").html(_tableList);
     $("#form").css('display', 'inline');
 }
 
+
+//==========================
 // 形成表格
-function _tableContent(panelList, type) {
-    let length = panelList.length;
+//==========================
+function _tableContent(panelTableList) {
+    let type = "a"
+    let length = panelTableList.length;
+    console.log(panelTableList)
+    console.log(length)
     let table = `<table id="#` + type + `" class="table table-striped">
         <thead>
         <tr>
@@ -135,17 +157,21 @@ function _tableContent(panelList, type) {
         </tr>
         </thead>
         <tbody id="panel_info_` + type + `">`;
+
     for (let i = 0; i < length; i++) {
-        if (panelList[i] === null) {
+        if (panelTableList[i] === null) {
             continue;
         }
-        table += _trContent(i, panelList[i].title, panelList[i].defaultValue, type);
+        table += _trContent(i, panelTableList[i].title, panelTableList[i].defaultValue, type);
     }
     table += `</tbody></table>`;
     return table;
 }
 
+
+//==========================
 // 形成表格
+//==========================
 function _trContent(tableNum, title, value, type) {
     return `<tr>
             <td>
@@ -159,13 +185,9 @@ function _trContent(tableNum, title, value, type) {
 }
 
 
-/*
-*
-* 运行按钮点击后开始的动作
-*
-* */
-
+//==========================
 // 确认并开始监控
+//==========================
 $start_btn.click(function () {
     // ID异常时，强制终止运行
     console.log('5555555555555555555555555555555555')
@@ -182,14 +204,20 @@ $start_btn.click(function () {
     $stop_btn.css('display', 'inline-block'); //并把另一个按钮打开
 });
 
-//正在监视中，点击按钮更新配置并重启监视
+
+//==========================
+// 正在监视中，点击按钮更新配置并重启监视
+//==========================
 $restart_btn.click(function () {
     let options = getOptions();
     getContentStatus('restart', options);
     // getBackgroundStatus('setBackgroundStatus', options);
 });
 
-//正在监视中，点击按钮更新配置并重启监视
+
+//==========================
+// 正在监视中，点击按钮停止监控
+//==========================
 $stop_btn.click(function () {
     let options = getOptions();
     getContentStatus('stop', options);
@@ -201,7 +229,9 @@ $stop_btn.click(function () {
 });
 
 
+//==========================
 // 获取运行参数，这些参数都是之前各个环境中拼接好的，直接获取即可
+//==========================
 function getOptions() {
     let _options = {};
     _options.interval = $('#interval').val(); //间隔时间，从初始化面板中获取数据
@@ -214,20 +244,3 @@ function getOptions() {
     // _options.panelList = panelList; //面板集合
     return _options; //返回一个字典对象
 }
-
-// 面板详情数据（list数据）
-// function _setPanelListValue() {
-//     console.log("7777777777777777777777777")
-//     console.log(panelList)
-//     for (let key in panelList) { //遍历面板集合
-//         if (panelList.hasOwnProperty(key)) { //判断面板集合中是否有指定的键
-//             let length = panelList[key].length; //获取单个面板的长度
-//             for (let i = 0; i < length; i++) { //遍历面板的子集对象
-//                 panelList[key][i] = $("#panel_value_" + key + i).val(); //给文本框里赋值
-//                 if ($("#panel_" + key + i).is(':checked') === false) {
-//                     panelList[key][i] = null;
-//                 }
-//             }
-//         }
-//     }
-// }
