@@ -28,6 +28,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 // 测试报警
 //==========================
 function _testAlert() {
+    console.log("_testAlert()函数被调用。。。")
     let speechLine = new SpeechSynthesisUtterance("运维自动化报警");
     speechLine.rate = 0.9;
     speechLine.volume = 1;
