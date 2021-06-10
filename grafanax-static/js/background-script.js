@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             alert(request.message);
             break;
         case 'getBackgroundStatus':
-            // _testAlert();
+            _testAlert();
             break;
         default:
             console.log('未知命令', request.cmd);
