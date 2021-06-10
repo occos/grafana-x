@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             alert(request.message);
             break;
         case 'getBackgroundStatus':
-            _testAlert();
+            // _testAlert();
             break;
         default:
             console.log('未知命令', request.cmd);
@@ -30,6 +30,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function _testAlert() {
     console.log("_testAlert()函数被调用。。。")
     let speechLine = new SpeechSynthesisUtterance("运维自动化报警");
+    speechLine.lang = "zh-TW";
     speechLine.rate = 0.9;
     speechLine.volume = 1;
     window.speechSynthesis.speak(speechLine);
@@ -57,6 +58,7 @@ function alert(message) {
         setTimeout(function () {
             // window.speechSynthesis.cancel();
             let speechLine = new SpeechSynthesisUtterance(message.title);
+            speechLine.lang = "zh-TW";
             speechLine.rate = 0.9;
             window.speechSynthesis.speak(speechLine);
         }, 2000)
