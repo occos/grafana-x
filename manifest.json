@@ -6,7 +6,7 @@
   //插件名称
   "name": "grafanaX",
   //插件版本
-  "version": "0.28.5",
+  "version": "1.0.0",
   //browser_action和page_action只能添加一个
   "browser_action": {
     //浏览器级别行为，所有页面均生效
