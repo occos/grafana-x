@@ -1,27 +1,43 @@
-let dashboardId = 0;
-let dashboardUrl = '';
-
-
 //==========================
-// 监听通信内容
+// 通信监听
 //==========================
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     switch (request.cmd) {
+
         case 'alert':
             console.log('alert:', request.message);
             alert(request.message);
             break;
+
         case 'getBackgroundStatus':
             // _testAlert();
             break;
+
+        case "getTabsMetadata":
+            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+                let _tabMetadata = {
+                    "tabId": tabs[0].id,
+                    "tabUrl": tabs[0].url,
+                    "tabIndex": tabs[0].index,
+                    "tabWindowId": tabs[0].windowId,
+                    "tabHighlighted": tabs[0].highlighted,
+                    "tabActive": tabs[0].active,
+                    "tabTitle": tabs[0].title,
+                    "tabStatus": tabs[0].status
+                }
+                chrome.tabs.sendMessage(_tabMetadata.tabId, {cmd: "getMetadata", metadata: _tabMetadata}, function (response) {
+                    // console.log(response)
+                })
+            })
+            break;
+
         default:
             console.log('未知命令', request.cmd);
     }
     sendResponse({
-        dashboardId: dashboardId, //第一次返回的编号是0
-        dashboardUrl: dashboardUrl, //第一次返回的RUL是空
+        status: "ok"
     })
-});
+})
 
 
 //==========================

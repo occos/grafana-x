@@ -1,0 +1,18 @@
+[
+  {
+    "metadataTitle": "接口延时",
+    "metadataDashboardId": 165,
+    "metadataDashboardUrl": "http://grafana.iquanwai.work/d/9FMhQe6Gk/wang-luo-ru-kou?orgId=1&refresh=30s",
+    "alertList": "[1,1,1]",
+    "alertText": "接口延时报警",
+    "alertTime": "1234567890123"
+  },
+  {
+    "metadataTitle": "接口延时",
+    "metadataDashboardId": 165,
+    "metadataDashboardUrl": "http://grafana.iquanwai.work/d/9FMhQe6Gk/wang-luo-ru-kou?orgId=1&refresh=30s",
+    "alertList": "[1,1,1]",
+    "alertText": "接口延时报警",
+    "alertTime": "1234567890123"
+  }
+]
