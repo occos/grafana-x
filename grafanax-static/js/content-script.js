@@ -17,12 +17,12 @@ class redCell {
         //构造器，此处不做任何构造处理
     }
 
-    setAlertTitle(alertText) {
-        this.alertTitle = alertText
-    }
-
     setMetadata(_tabMetadata) {
         this.tabMetadata = _tabMetadata
+    }
+
+    setAlertTitle(alertText) {
+        this.alertTitle = alertText
     }
 
     setAlertList(alertList) {
