@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             // _testAlert();
             break;
 
-        case "getTabsMetadata":
+        case "getTabMetadata":
             chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
                 let _tabMetadata = {
                     "tabId": tabs[0].id,
@@ -25,10 +25,18 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                     "tabTitle": tabs[0].title,
                     "tabStatus": tabs[0].status
                 }
-                chrome.tabs.sendMessage(_tabMetadata.tabId, {cmd: "getMetadata", metadata: _tabMetadata}, function (response) {
+                chrome.tabs.sendMessage(_tabMetadata.tabId, {cmd: "initPage", metadata: _tabMetadata}, function (response) {
                     // console.log(response)
                 })
             })
+            break;
+
+        case 'getGlobalMonitoringSetting':
+            //获取全局监控配置
+            break;
+
+        case 'getGlobalAlertSetting':
+            //获取全局报警配置
             break;
 
         default:
